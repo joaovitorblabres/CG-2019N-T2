@@ -10,3 +10,6 @@ main: main.o
 
 clean:
 	-rm -f *.o
+
+install-deps:
+	sudo apt install build-essential cmake xorg-dev libglu1-mesa-dev libglfw3 libglfw3-dev freeglut3 freeglut3-dev libglew-dev mesa-utils mesa-common-dev
