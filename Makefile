@@ -1,12 +1,14 @@
 CC = g++
 LIBS = -lglfw -lGL -lm -lX11 -lglut -lGLU
-CFLAGS = -g -Wall -Wno-deprecated
+CFLAGS = -g -Wall -Wno-deprecated -Wextra
+OBJ = main.o Point.o
+DEPS = Point.h
 
-main: main.o
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
-
-%.o: %.cpp
+%.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c $<
+
+main: $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 clean:
 	-rm -f *.o
