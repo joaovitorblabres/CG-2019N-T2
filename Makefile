@@ -1,10 +1,9 @@
 CC = g++
 LIBS = -lglfw -lGL -lm -lX11 -lglut -lGLU
 CFLAGS = -g -Wall -Wno-deprecated -Wextra
-OBJ = main.o Point.o
-DEPS = Point.h
+OBJ = main.o Point.o Pecas.o
 
-%.o: %.cpp $(DEPS)
+%.o: %.cpp
 	$(CC) $(CFLAGS) -c $<
 
 main: $(OBJ)

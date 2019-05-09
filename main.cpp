@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Point.h"
+#include "Pecas.cpp"
 using namespace std;
 
 // global variables
@@ -15,14 +16,21 @@ static struct {
 	// current recursion for drawing the spheres
 } globals;
 
+
+#define n 8
+#define x1 0
+#define x2 8
+#define y1 0
+#define y2 8
+#define DX ((x2 - x1) / n)
+#define DY ((y2 - y1) / n)
+
+peao p1(0*DX + DX/2, 6*DY + DY/2, 0.5,1.0,1.0,1.0,1.0);
+peao p2(1*DX + DX/2, 6*DY + DY/2, 0.5,1.0,1.0,1.0,1.0);
 // draw checkerboard floor
 static void drawFloor(void)
 {
-	int n = 10;
-	double x1 = 0, x2 = 10, y1 = 0, y2 = 10;
-	double dx = (x2 - x1) / n, dy = (y2 - y1) / n;
 	glBegin(GL_QUADS);
-
 	// same normal for everything
 	glNormal3d(0, 0, 1);
 
@@ -31,16 +39,33 @@ static void drawFloor(void)
 			if ((ix + iy) % 2)
 				glColor3f(1, 1, 1);
 			else
-				glColor3f(1, 0, 0);
+				glColor3f(0, 0, 0);
 
-			glVertex3d(x1 + ix * dx, y1 + iy * dy, 0);
-			glVertex3d(x1 + (ix + 1) * dx, y1 + iy * dy, 0);
-			glVertex3d(x1 + (ix + 1) * dx, y1 + (iy + 1) * dy, 0);
-			glVertex3d(x1 + ix * dx, y1 + (iy + 1) * dy, 0);
+			glVertex3d(x1 + ix * DX, y1 + iy * DY, 0);
+			glVertex3d(x1 + (ix + 1) * DX, y1 + iy * DY, 0);
+			glVertex3d(x1 + (ix + 1) * DX, y1 + (iy + 1) * DY, 0);
+			glVertex3d(x1 + ix * DX, y1 + (iy + 1) * DY, 0);
 		}
 	}
-
 	glEnd();
+	p1.update();
+	p2.update();
+
+/*	for (int ix = 0; ix < n; ix++) {
+		for (int iy = 0; iy < n; iy++) {
+			if ((ix + iy) % 2)
+				glColor3f(1, 1, 1);
+			else
+				glColor3f(0, 0, 0);
+
+			glPushMatrix();
+
+				//glScalef(0.8, 0.8, 1.2);
+				glTranslatef(x1 + (ix * dx) + 0.5, y1 + (iy * dy) + 0.5, 1.0);
+				glutSolidCube(1);
+			glPopMatrix();
+		}
+	}*/
 }
 
 // function called by GLUT whenever a redraw is needed
@@ -48,7 +73,7 @@ static void display()
 {
 	// clear the window with the predefined color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glClearColor(0.3, 0.3, 0.3, 1.0);
 	// setup viewing transformation
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -56,10 +81,10 @@ static void display()
 	double a = globals.alpha * M_PI / 180.0;
 	double b = globals.beta * M_PI / 180.0;
 	Point p(r * cos(a) * cos(b), r*sin(a)*cos(b), r*sin(b));
-	Point c(5, 5, 1.5);
+	Point c(n/2, n/2, 1.0);
 	p = p + c;
 
-	GLfloat lightPos[] = { 10.0, 10.0, 10.0, 1.0 };
+	GLfloat lightPos[] = { 5.0, 5.0, 10.0, 1.0 };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
 	gluLookAt(p.x(), p.y(), p.z(), c.x(), c.y(), c.z(), 0, 0, 1);
