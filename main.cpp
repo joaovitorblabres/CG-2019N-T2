@@ -148,9 +148,9 @@ static void mouseClickCB(int button, int state, int x, int y)
 {
 	globals.mouseX = x;
 	globals.mouseY = y;
-	if(pieces[(y - 130)/43][(x - 195)/50] != NULL && (y - 130)/43 >= 0 && (y - 130)/43 <= 7 && (x - 195)/50 >= 0 && (x - 195)/50 <= 7){
-		cout << (x - 195)/50 << ' ' << (y - 130)/43 << endl;
-		pieces[(y - 130)/43][7-(x - 195)/50]->moving();
+	//cout << (x - 195)/50 << ' ' << 7-(y - 130)/43 << " tem: " << tab[(y - 130)/43][7-(x - 195)/50] << endl;
+	if(pieces[(y - 130)/43][7-(x - 195)/50] != NULL && (y - 130)/43 >= 0 && (y - 130)/43 <= 7 && (x - 195)/50 >= 0 && (x - 195)/50 <= 7){
+		pieces[(y - 130)/43][7-(x - 195)/50]->select();
 	}
 
 	if (state == GLUT_UP) {
