@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "Point.h"
-#include "Pecas.cpp"
+#include "pieces.cpp"
 using namespace std;
 
 // global variables
@@ -16,7 +16,6 @@ static struct {
 	// current recursion for drawing the spheres
 } globals;
 
-
 #define n 8
 #define x1 0
 #define x2 8
@@ -24,9 +23,8 @@ static struct {
 #define y2 8
 #define DX ((x2 - x1) / n)
 #define DY ((y2 - y1) / n)
+piece* pieces[8][8];
 
-peao p1(0*DX + DX/2, 6*DY + DY/2, 0.5,1.0,1.0,1.0,1.0);
-peao p2(1*DX + DX/2, 6*DY + DY/2, 0.5,1.0,1.0,1.0,1.0);
 // draw checkerboard floor
 static void drawFloor(void)
 {
@@ -37,7 +35,7 @@ static void drawFloor(void)
 	for (int ix = 0; ix < n; ix++) {
 		for (int iy = 0; iy < n; iy++) {
 			if ((ix + iy) % 2)
-				glColor3f(1, 1, 1);
+				glColor3f(0.7, 0.7, 0.7);
 			else
 				glColor3f(0, 0, 0);
 
@@ -48,24 +46,54 @@ static void drawFloor(void)
 		}
 	}
 	glEnd();
-	p1.update();
-	p2.update();
+}
 
-/*	for (int ix = 0; ix < n; ix++) {
-		for (int iy = 0; iy < n; iy++) {
-			if ((ix + iy) % 2)
-				glColor3f(1, 1, 1);
-			else
-				glColor3f(0, 0, 0);
+static void loadPieces(){
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){
+			if (tab[i][j] == 11) {
+				pieces[i][j] = new pawn(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 1.0, 1.0, 1.0);
+			}
+			if(tab[i][j] == 21){
+				pieces[i][j] = new pawn(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 0.0, 0.0, 0.0);
+			}
 
-			glPushMatrix();
+			if(tab[i][j] == 12){
+				pieces[i][j] = new rook(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 1.0, 1.0, 1.0);
+			}
+			if(tab[i][j] == 22){
+				pieces[i][j] = new rook(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 0.0, 0.0, 0.0);
+			}
 
-				//glScalef(0.8, 0.8, 1.2);
-				glTranslatef(x1 + (ix * dx) + 0.5, y1 + (iy * dy) + 0.5, 1.0);
-				glutSolidCube(1);
-			glPopMatrix();
+			if(tab[i][j] == 13){
+				pieces[i][j] = new knight(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 1.0, 1.0, 1.0);
+			}
+			if(tab[i][j] == 23){
+				pieces[i][j] = new knight(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 0.0, 0.0, 0.0);
+			}
+
+			if(tab[i][j] == 14){
+				pieces[i][j] = new bishop(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 1.0, 1.0, 1.0);
+			}
+			if(tab[i][j] == 24){
+				pieces[i][j] = new bishop(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 0.0, 0.0, 0.0);
+			}
+
+			if(tab[i][j] == 15){
+				pieces[i][j] = new queen(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 1.0, 1.0, 1.0);
+			}
+			if(tab[i][j] == 25){
+				pieces[i][j] = new queen(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 0.0, 0.0, 0.0);
+			}
+
+			if(tab[i][j] == 16){
+				pieces[i][j] = new king(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 1.0, 1.0, 1.0);
+			}
+			if(tab[i][j] == 26){
+				pieces[i][j] = new king(j*DX + DX/2, i*DY + DY/2, 0.5, 1.0, 0.0, 0.0, 0.0);
+			}
 		}
-	}*/
+	}
 }
 
 // function called by GLUT whenever a redraw is needed
@@ -90,6 +118,13 @@ static void display()
 	gluLookAt(p.x(), p.y(), p.z(), c.x(), c.y(), c.z(), 0, 0, 1);
 
 	drawFloor();
+
+	for (int ix = 0; ix < n; ix++) {
+		for (int iy = 0; iy < n; iy++) {
+			if(pieces[ix][iy] == NULL) continue;
+			pieces[ix][iy]->update();
+		}
+	}
 
 	// make sure everything gets drawn
 	glFlush();
@@ -150,8 +185,8 @@ static void mouseMotionCB(int x, int y)
 }
 
 static void init(){
-	globals.alpha = 30;
-	globals.beta = 30;
+	globals.alpha = 90;
+	globals.beta = 90;
 	globals.dist = 10;
 	globals.viewingMode = globals.NONE;
 
@@ -163,8 +198,8 @@ static void init(){
 		| GLUT_MULTISAMPLE | GLUT_DEPTH);
 
 	// create a window
-	glutCreateWindow("MD2 Viewer");
-
+	glutCreateWindow("CG-2019-T2 - JOAO VITOR B LABRES");
+	loadPieces();
 	// register callbacks
 	glutDisplayFunc(display);
 	glutReshapeFunc(resizeCB);

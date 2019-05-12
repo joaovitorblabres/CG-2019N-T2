@@ -1,7 +1,7 @@
 CC = g++
 LIBS = -lglfw -lGL -lm -lX11 -lglut -lGLU
 CFLAGS = -g -Wall -Wno-deprecated -Wextra
-OBJ = main.o Point.o Pecas.o
+OBJ = main.o Point.o pieces.o
 
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $<
