@@ -37,7 +37,7 @@ static void drawFloor(void)
 			if ((ix + iy) % 2)
 				glColor3f(0.7, 0.7, 0.7);
 			else
-				glColor3f(0, 0, 0);
+				glColor3f(0.1, 0.1, 0.1);
 
 			glVertex3d(x1 + ix * DX, y1 + iy * DY, 0);
 			glVertex3d(x1 + (ix + 1) * DX, y1 + iy * DY, 0);
@@ -148,6 +148,10 @@ static void mouseClickCB(int button, int state, int x, int y)
 {
 	globals.mouseX = x;
 	globals.mouseY = y;
+	if(pieces[(y - 130)/43][(x - 195)/50] != NULL && (y - 130)/43 >= 0 && (y - 130)/43 <= 7 && (x - 195)/50 >= 0 && (x - 195)/50 <= 7){
+		cout << (x - 195)/50 << ' ' << (y - 130)/43 << endl;
+		pieces[(y - 130)/43][7-(x - 195)/50]->moving();
+	}
 
 	if (state == GLUT_UP) {
 		globals.viewingMode = globals.NONE;
@@ -166,7 +170,7 @@ static void mouseClickCB(int button, int state, int x, int y)
 // when user drags the mouse, we either rotate or zoom
 static void mouseMotionCB(int x, int y)
 {
-	int dx = x - globals.mouseX;
+	/*int dx = x - globals.mouseX;
 	int dy = y - globals.mouseY;
 	globals.mouseX = x;
 	globals.mouseY = y;
@@ -181,7 +185,7 @@ static void mouseMotionCB(int x, int y)
 	else if (globals.viewingMode == globals.ZOOMING) {
 		globals.dist = std::max(1.0, globals.dist - dy / 10.0);
 		glutPostRedisplay();
-	}
+	}*/
 }
 
 static void init(){
@@ -200,14 +204,16 @@ static void init(){
 	// create a window
 	glutCreateWindow("CG-2019-T2 - JOAO VITOR B LABRES");
 	loadPieces();
+	glClearColor(0.3, 0.3, 0.3, 1.0);
 	// register callbacks
 	glutDisplayFunc(display);
 	glutReshapeFunc(resizeCB);
 	glutMouseFunc(mouseClickCB);
-	glutMotionFunc(mouseMotionCB);
+	//glutMotionFunc(display);
+	glutIdleFunc(display);
 
 	// use black as the background color
-	glClearColor(0, 0, 0, 0);
+	//glClearColor(0, 0, 0, 0);
 
 	// enable depth buffer
 	glEnable(GL_DEPTH_TEST);
