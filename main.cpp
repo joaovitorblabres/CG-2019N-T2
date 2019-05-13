@@ -101,7 +101,7 @@ static void display()
 {
 	// clear the window with the predefined color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.3, 0.3, 0.3, 1.0);
+	//glClearColor(0.3, 0.3, 0.3, 1.0);
 	// setup viewing transformation
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -168,9 +168,9 @@ static void mouseClickCB(int button, int state, int x, int y)
 }
 
 // when user drags the mouse, we either rotate or zoom
-static void mouseMotionCB(int x, int y)
+/*static void mouseMotionCB(int x, int y)
 {
-	/*int dx = x - globals.mouseX;
+	int dx = x - globals.mouseX;
 	int dy = y - globals.mouseY;
 	globals.mouseX = x;
 	globals.mouseY = y;
@@ -185,8 +185,8 @@ static void mouseMotionCB(int x, int y)
 	else if (globals.viewingMode == globals.ZOOMING) {
 		globals.dist = std::max(1.0, globals.dist - dy / 10.0);
 		glutPostRedisplay();
-	}*/
-}
+	}
+}*/
 
 static void init(){
 	globals.alpha = 90;
@@ -209,7 +209,7 @@ static void init(){
 	glutDisplayFunc(display);
 	glutReshapeFunc(resizeCB);
 	glutMouseFunc(mouseClickCB);
-	//glutMotionFunc(display);
+	//glutMotionFunc(mouseMotionCB);
 	glutIdleFunc(display);
 
 	// use black as the background color
