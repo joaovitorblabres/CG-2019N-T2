@@ -1,6 +1,6 @@
 CC = g++
 LIBS = -lglfw -lGL -lm -lX11 -lglut -lGLU
-CFLAGS = -g -Wall -Wno-deprecated -Wextra -std=c++11
+CFLAGS = -g -Wno-deprecated -Wextra -std=c++11
 OBJ = main.o Point.o pieces.o
 
 %.o: %.cpp

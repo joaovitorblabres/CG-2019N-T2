@@ -1,9 +1,16 @@
 #include <GL/freeglut.h>
 #include <iostream>
-
 #include "Point.h"
 #include "pieces.cpp"
 using namespace std;
+
+#define n 8
+#define x1 0
+#define x2 8
+#define y1 0
+#define y2 8
+#define DX ((x2 - x1) / n)
+#define DY ((y2 - y1) / n)
 
 // global variables
 static struct {
@@ -16,14 +23,22 @@ static struct {
 	// current recursion for drawing the spheres
 } globals;
 
-#define n 8
-#define x1 0
-#define x2 8
-#define y1 0
-#define y2 8
-#define DX ((x2 - x1) / n)
-#define DY ((y2 - y1) / n)
+static void update(int value);
+static void drawFloor(void);
+static void loadPieces();
+static void display();
+static void resizeCB(int w, int h);
+static void mouseClickCB(int button, int state, int x, int y);
+static void update(int value);
+static void rotation(float deltaTime);
+
 piece* pieces[8][8];
+
+int gTimeLastUpdateMs = 0;
+
+const unsigned int FRAMES_PER_SECOND = 30;
+const unsigned int UPDATE_INTERVAL_MS = 1000 / FRAMES_PER_SECOND;
+
 
 // draw checkerboard floor
 static void drawFloor(void)
@@ -97,8 +112,7 @@ static void loadPieces(){
 }
 
 // function called by GLUT whenever a redraw is needed
-static void display()
-{
+static void display(){
 	// clear the window with the predefined color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClearColor(0.3, 0.3, 0.3, 1.0);
@@ -142,6 +156,8 @@ static void resizeCB(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
+int giro = 0;
+
 // when mouse button is clicked, we determine which viewing mode to
 // initialize and also remember where the mouse was clicked
 static void mouseClickCB(int button, int state, int x, int y)
@@ -149,44 +165,69 @@ static void mouseClickCB(int button, int state, int x, int y)
 	globals.mouseX = x;
 	globals.mouseY = y;
 	//cout << (x - 195)/50 << ' ' << 7-(y - 130)/43 << " tem: " << tab[(y - 130)/43][7-(x - 195)/50] << endl;
-	if(pieces[(y - 130)/43][7-(x - 195)/50] != NULL && (y - 130)/43 >= 0 && (y - 130)/43 <= 7 && (x - 195)/50 >= 0 && (x - 195)/50 <= 7){
-		pieces[(y - 130)/43][7-(x - 195)/50]->select();
+	if(pieces[(globals.mouseY - 130)/43][7-(globals.mouseX - 195)/50] != NULL && (globals.mouseY - 130)/43 >= 0 && (globals.mouseY - 130)/43 <= 7 && (globals.mouseX - 195)/50 >= 0 && (globals.mouseX - 195)/50 <= 7){
+		pieces[(globals.mouseY - 130)/43][7-(globals.mouseX - 195)/50]->select();
+		giro = 0;
+		gTimeLastUpdateMs = glutGet(GLUT_ELAPSED_TIME);
+		glutTimerFunc(UPDATE_INTERVAL_MS, update, 0);
 	}
+}
 
-	if (state == GLUT_UP) {
-		globals.viewingMode = globals.NONE;
-	}
-	else if (button == GLUT_LEFT_BUTTON) {
-		globals.viewingMode = globals.ROTATING;
-	}
-	else if (button == GLUT_MIDDLE_BUTTON) {
-		globals.viewingMode = globals.ZOOMING;
-	}
-	else {
-		globals.viewingMode = globals.NONE;
+
+static void update(int value){
+	int timeNowMs = glutGet(GLUT_ELAPSED_TIME);
+	double deltaSeconds = (timeNowMs - gTimeLastUpdateMs) / 1000.0;
+
+	gTimeLastUpdateMs = timeNowMs;
+	rotation(deltaSeconds);
+
+	glutPostRedisplay();
+	//cout << ((float) timeNowMs - gTimeLastUpdateMs) << endl;
+	if (deltaSeconds <= 15){
+		glutTimerFunc(UPDATE_INTERVAL_MS, update, 0);
+	}else{
+		deltaSeconds = 0;
+		pieces[(globals.mouseY - 130)/43][7-(globals.mouseX - 195)/50]->deselect();
+		giro = 0;
 	}
 }
 
 // when user drags the mouse, we either rotate or zoom
-/*static void mouseMotionCB(int x, int y)
-{
-	int dx = x - globals.mouseX;
-	int dy = y - globals.mouseY;
-	globals.mouseX = x;
-	globals.mouseY = y;
+static void rotation(float deltaTime){
+	//for(; globals.alpha > 45; globals.alpha -= deltaTime);
+	//for(; globals.beta < 45; globals.alpha += deltaTime);
+	//if (globals.viewingMode == globals.ROTATING) {
+		//globals.alpha -= deltaTime / 2.0;
+	if(!giro && globals.beta <= 90)
+		globals.beta -= deltaTime * 24.0;
+	if(!giro && globals.beta < 45){
+		globals.alpha += deltaTime * 360 / 10;
+		globals.beta = 45;
+	}
 
-	if (globals.viewingMode == globals.ROTATING) {
-		globals.alpha -= dx / 10.0;
-		globals.beta += dy / 10.0;
-		if (globals.beta < -80) globals.beta = -80;
-		if (globals.beta > 80) globals.beta = 80;
-		glutPostRedisplay();
+	if(globals.alpha - 90 > 360){
+		globals.alpha = (int)globals.alpha % 360;
+		giro = 1;
 	}
-	else if (globals.viewingMode == globals.ZOOMING) {
-		globals.dist = std::max(1.0, globals.dist - dy / 10.0);
-		glutPostRedisplay();
+
+	if(giro && globals.alpha - 90 >= 0){
+		globals.beta += deltaTime * 24.0;
 	}
-}*/
+
+	if(globals.beta > 90){
+		globals.beta = 90;
+	}
+
+	if(globals.beta >= 90 && globals.alpha >= 90 && giro){
+		pieces[(globals.mouseY - 130)/43][7-(globals.mouseX - 195)/50]->deselect();
+	}
+
+	glutPostRedisplay();
+/*	}	else if (globals.viewingMode == globals.ZOOMING) {
+		globals.dist = std::max(1.0, globals.dist - deltaTime / 10.0);
+		glutPostRedisplay();
+	}*/
+}
 
 static void init(){
 	globals.alpha = 90;
