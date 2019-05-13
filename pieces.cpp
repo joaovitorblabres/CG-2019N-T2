@@ -8,12 +8,12 @@ using namespace std;
 // X = 1 PAWN; X = 2 ROOK; X = 3 KNIGHT; X = 4 BISHOP; X = 5 QUEEN; X = 6 KING
 const int tab[8][8] = {
                         {22, 23, 24, 25, 26, 24, 23, 22},
-                        {21, 21, 21, 21, 21, 21, 21, 0},
+                        {21, 21, 21, 21, 21, 21, 21, 21},
                         {0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 21},
                         {0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 12, 11},
-                        {11, 11, 11, 11, 11, 11, 0, 0},
+                        {0, 0, 0, 0, 0, 0, 0, 0},
+                        {0, 0, 0, 0, 0, 0, 0, 0},
+                        {11, 11, 11, 11, 11, 11, 11, 11},
                         {12, 13, 14, 15, 16, 14, 13, 12}
                       };
 
@@ -48,7 +48,7 @@ public:
   virtual void moves(GLfloat R, GLfloat G, GLfloat B) = 0;
 };
 
-static void draw(GLfloat x, GLfloat y, GLfloat z, GLfloat R, GLfloat G, GLfloat B){
+static void drawVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat R, GLfloat G, GLfloat B){
   glColor3f(R, G, B);
   glBegin(GL_QUADS);
     glVertex3d(x, y, 0.02);
@@ -56,6 +56,15 @@ static void draw(GLfloat x, GLfloat y, GLfloat z, GLfloat R, GLfloat G, GLfloat 
     glVertex3d(x+1, y+1, 0.02);
     glVertex3d(x, y+1, 0.02);
   glEnd();
+}
+
+static void drawSolidCube(GLfloat x, GLfloat y, GLfloat z, GLfloat R, GLfloat G, GLfloat B, GLfloat sX, GLfloat sY, GLfloat sZ, GLfloat height){
+	glPushMatrix();
+      glColor3f(R, G, B);
+      glTranslatef(x, y, z);
+      glScalef(sX, sY, sZ);
+      glutSolidCube(height);
+    glPopMatrix();
 }
 
 class pawn: public piece{
@@ -70,22 +79,17 @@ public:
   }
   GLint selected = 0;
   void update() override{
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*0.8 + 0.01);
-      glScalef(0.5, 0.5, 0.8);
-      glutSolidCube(height);
-    glPopMatrix();
+  	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*0.8 + 0.01, R, G, B, 0.5, 0.5, 0.8, this->height);
 
     glPushMatrix();
       glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*1.6 + 0.01);
+      glTranslatef(x+height/2, y+height/2, this->z*1.6 + 0.01);
       glutSolidSphere(0.3, 32, 32);
     glPopMatrix();
 
-    this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.005);
+    this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.0005);
     if(this->selected == 1){
-      draw(x, y, 0, 0, 0, 0.8);
+      drawVertex(x, y, 0, 0, 0, 0.8);
       moves(this->RChange, 0.2, 0.2);
     }
   }
@@ -99,32 +103,32 @@ public:
       GLint xF = this->x;
       GLint yF = this->y-1;
       if(tab[yF][xF] == 0){
-        draw(x, y-1, 0, R, G, B);
+        drawVertex(x, y-1, 0, R, G, B);
       }
       if(this->isMoved == 0 && tab[yF-1][xF] == 0){
-        draw(x, y-2, 0, R, G, B);
+        drawVertex(x, y-2, 0, R, G, B);
       }
       if(tab[yF][xF-1] != 0 && tab[yF][xF-1] > 20 && xF-1 >= 0){
-        draw(x-1, y-1, 0, R, G, B);
+        drawVertex(x-1, y-1, 0, R, G, B);
       }
       if(tab[yF][xF+1] != 0 && tab[yF][xF-1] > 20 && xF-1 <= 7){
-        draw(x+1, y-1, 0, R, G, B);
+        drawVertex(x+1, y-1, 0, R, G, B);
       }
     }
     if(this->R == 0.0){
       GLint xF = this->x;
       GLint yF = this->y+1;
       if(tab[yF][xF] == 0){
-        draw(x, y+1, 0, R, G, B);
+        drawVertex(x, y+1, 0, R, G, B);
       }
       if(this->isMoved == 0 && tab[yF+1][xF] == 0){
-        draw(x, y+2, 0, R, G, B);
+        drawVertex(x, y+2, 0, R, G, B);
       }
       if(tab[yF][xF+1] != 0 && tab[yF][xF+1] < 20 && xF+1 <= 7){
-        draw(x+1, y+1, 0, R, G, B);
+        drawVertex(x+1, y+1, 0, R, G, B);
       }
       if(tab[yF][xF-1] != 0 && tab[yF][xF-1] < 20 && xF-1 >= 0){
-        draw(x-1, y+1, 0, R, G, B);
+        drawVertex(x-1, y+1, 0, R, G, B);
       }
     }
   }
@@ -135,23 +139,13 @@ public:
   rook(GLfloat x1, GLfloat y1, GLfloat z1, GLfloat tam, GLfloat R1, GLfloat G1, GLfloat B1):piece(x1, y1, z1, tam, R1, G1, B1){};
   GLint selected = 0;
   void update() override{
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*1.4 + 0.01);
-      glScalef(0.8, 0.8, 0.2);
-      glutSolidCube(height);
-    glPopMatrix();
+  	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*1.4 + 0.01, R, G, B, 0.8, 0.8, 0.2, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z + 0.01);
-      glScalef(0.5, 0.5, 1);
-      glutSolidCube(height);
-    glPopMatrix();
+	drawSolidCube(this->x+this->height/2, this->y+this->height/2, z + 0.01, R, G, B, 0.5, 0.5, 1, this->height);
 
-    this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.005);
+    this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.0005);
     if(this->selected == 1){
-      draw(x, y, 0, 0, 0, 0.8);
+      drawVertex(x, y, 0, 0, 0, 0.8);
       moves(this->RChange, 0.2, 0.2);
     }
   }
@@ -161,51 +155,49 @@ public:
   }
 
   void moves(GLfloat R, GLfloat G, GLfloat B) override{
-    if(this->R == 1.0){
-      GLint xF = this->x;
-      GLint yF = this->y;
-      for(yF = this->y + 1; yF <= 7; yF++){
-        if(tab[yF][xF] == 0){
-          draw(xF, yF, 0, R, G, B);
-        }else if (tab[yF][xF] > 20){
-          draw(xF, yF, 0, R, G, B);
-          break;
-        }else{
-          break;
-        }
-      }
-      for(yF = this->y - 1; yF >= 0; yF--){
-        if(tab[yF][xF] == 0){
-          draw(xF, yF, 0, R, G, B);
-        }else if (tab[yF][xF] > 20){
-          draw(xF, yF, 0, R, G, B);
-          break;
-        }else{
-          break;
-        }
-      }
-      yF = this->y;
-      for(xF = this->x + 1; xF <= 7; xF++){
-        if(tab[yF][xF] == 0){
-          draw(xF, yF, 0, R, G, B);
-        }else if (tab[yF][xF] > 20){
-          draw(xF, yF, 0, R, G, B);
-          break;
-        }else{
-          break;
-        }
-      }
-      for(xF = this->x - 1; xF >= 0; xF--){
-        if(tab[yF][xF] == 0){
-          draw(xF, yF, 0, R, G, B);
-        }else if (tab[yF][xF] > 20){
-          draw(xF, yF, 0, R, G, B);
-          break;
-        }else{
-          break;
-        }
-      }
-    }
+	  GLint xF = this->x;
+	  GLint yF = this->y;
+	  for(yF = this->y + 1; yF <= 7; yF++){
+	    if(tab[yF][xF] == 0){
+	      drawVertex(xF, yF, 0, R, G, B);
+	  	}else if ((this->R == 1.0 ? tab[yF][xF] > 20 : tab[yF][xF] < 20)){
+	      drawVertex(xF, yF, 0, R, G, B);
+	      break;
+	    }else{
+	      break;
+	    }
+	  }
+	  for(yF = this->y - 1; yF >= 0; yF--){
+	    if(tab[yF][xF] == 0){
+	      drawVertex(xF, yF, 0, R, G, B);
+	    }else if ((this->R == 1.0 ? tab[yF][xF] > 20 : tab[yF][xF] < 20)){
+	      drawVertex(xF, yF, 0, R, G, B);
+	      break;
+	    }else{
+	      break;
+	    }
+	  }
+	  yF = this->y;
+	  for(xF = this->x + 1; xF <= 7; xF++){
+	    if(tab[yF][xF] == 0){
+	      drawVertex(xF, yF, 0, R, G, B);
+	    }else if ((this->R == 1.0 ? tab[yF][xF] > 20 : tab[yF][xF] < 20)){
+	      drawVertex(xF, yF, 0, R, G, B);
+	      break;
+	    }else{
+	      break;
+	    }
+	  }
+	  for(xF = this->x - 1; xF >= 0; xF--){
+	    if(tab[yF][xF] == 0){
+	      drawVertex(xF, yF, 0, R, G, B);
+	    }else if ((this->R == 1.0 ? tab[yF][xF] > 20 : tab[yF][xF] < 20)){
+	      drawVertex(xF, yF, 0, R, G, B);
+	      break;
+	    }else{
+	      break;
+	    }
+	  }
   }
 };
 
@@ -214,55 +206,18 @@ public:
   knight(GLfloat x1, GLfloat y1, GLfloat z1, GLfloat tam, GLfloat R1, GLfloat G1, GLfloat B1):piece(x1, y1, z1, tam, R1, G1, B1){};
   GLint selected = 0;
   void update() override{
+  	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*1.2 + 0.01, R, G, B, 0.5, 0.5, 1.2, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*1.2 + 0.01);
-      glScalef(0.5, 0.5, 1.2);
-      glutSolidCube(height);
-    glPopMatrix();
+  	drawSolidCube(this->x+this->height/2 + (this->R == 0 ? 0.1 : 1*-0.1), this->y+this->height/2, this->z*1.8, R, G, B, 0.5, 0.9, 0.5, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      if(this->R == 0){
-        glTranslatef(x+height/2, y+height/2 + 0.1, z*1.8 + 0.01);
-      }else{
-        glTranslatef(x+height/2, y+height/2 - 0.1, z*1.8 + 0.01);
-      }
-      glScalef(0.5, 0.9, 0.5);
-      glutSolidCube(height);
-    glPopMatrix();
+	drawSolidCube(this->x+this->height/2 + (this->R == 0 ? 1*-0.2 : 1*0.2), this->y+this->height/2, this->z*2.2, R, G, B, 0.1, 0.2, 0.6, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      if(this->R == 0){
-        glTranslatef(x+height/2 - 0.2, y+height/2, z*2.2 + 0.01);
-      }else{
-        glTranslatef(x+height/2 + 0.2, y+height/2, z*2.2 + 0.01);
-      }
-      glScalef(0.1, 0.2, 0.6);
-      glutSolidCube(height);
-    glPopMatrix();
+	drawSolidCube(this->x+this->height/2 + (this->R == 0 ? 1*0.2 : 1*-0.2), this->y+this->height/2, this->z*2.2, R, G, B, 0.1, 0.2, 0.6, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      if(this->R == 0){
-        glTranslatef(x+height/2 + 0.2, y+height/2, z*2.2 + 0.01);
-      }else{
-        glTranslatef(x+height/2 - 0.2, y+height/2, z*2.2 + 0.01);
-      }
-      glScalef(0.1, 0.2, 0.6);
-      glutSolidCube(height);
-    glPopMatrix();
-
-    if(selected){
-      glColor3f(0, 0, 0.8);
-      glBegin(GL_QUADS);
-        glVertex3d(x, y, 0.02);
-        glVertex3d(x+1, y, 0.02);
-        glVertex3d(x+1, y+1, 0.02);
-        glVertex3d(x, y+1, 0.02);
-      glEnd();
+	this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.0005);
+    if(this->selected == 1){
+      drawVertex(x, y, 0, 0, 0, 0.8);
+      moves(this->RChange, 0.2, 0.2);
     }
   }
 
@@ -282,42 +237,20 @@ public:
   bishop(GLfloat x1, GLfloat y1, GLfloat z1, GLfloat tam, GLfloat R1, GLfloat G1, GLfloat B1):piece(x1, y1, z1, tam, R1, G1, B1){};
   GLint selected = 0;
   void update() override{
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*1.2 + 0.01);
-      glScalef(0.4, 0.4, 1.2);
-      glutSolidCube(height);
-    glPopMatrix();
+  	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*1.2 + 0.01, R, G, B, 0.4, 0.4, 1.2, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*2.2 + 0.01);
-      glScalef(0.6, 0.6, 0.3);
-      glutSolidCube(height);
-    glPopMatrix();
+	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*2.2 + 0.01, R, G, B, 0.6, 0.6, 0.3, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*2.9 + 0.01);
-      glScalef(0.1, 0.1, 0.4);
-      glutSolidCube(height);
-    glPopMatrix();
+	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*2.9 + 0.01, R, G, B, 0.1, 0.1, 0.4, this->height);
 
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*3 + 0.01);
-      glScalef(0.1, 0.4, 0.1);
-      glutSolidCube(height);
-    glPopMatrix();
-    if(selected){
-      glColor3f(0, 0, 0.8);
-      glBegin(GL_QUADS);
-        glVertex3d(x, y, 0.02);
-        glVertex3d(x+1, y, 0.02);
-        glVertex3d(x+1, y+1, 0.02);
-        glVertex3d(x, y+1, 0.02);
-      glEnd();
+	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*3 + 0.01, R, G, B, 0.1, 0.4, 0.1, this->height);
+
+	this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.0005);
+    if(this->selected == 1){
+      drawVertex(x, y, 0, 0, 0, 0.8);
+      moves(this->RChange, 0.2, 0.2);
     }
+
   }
 
   void select() override{
@@ -336,12 +269,7 @@ public:
   queen(GLfloat x1, GLfloat y1, GLfloat z1, GLfloat tam, GLfloat R1, GLfloat G1, GLfloat B1):piece(x1, y1, z1, tam, R1, G1, B1){};
   GLint selected = 0;
   void update() override{
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*1.4 + 0.01);
-      glScalef(0.4, 0.4, 1.4);
-      glutSolidCube(height);
-    glPopMatrix();
+  	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*1.4 + 0.01, R, G, B, 0.4, 0.4, 1.4, this->height);
 
     glPushMatrix();
       glColor3f(R, G, B);
@@ -349,14 +277,11 @@ public:
       glScalef(0.1, 0.1, 0.1);
       glutSolidDodecahedron();
     glPopMatrix();
-    if(selected){
-        glColor3f(0, 0, 0.8);
-        glBegin(GL_QUADS);
-          glVertex3d(x, y, 0.02);
-          glVertex3d(x+1, y, 0.02);
-          glVertex3d(x+1, y+1, 0.02);
-          glVertex3d(x, y+1, 0.02);
-        glEnd();
+
+	this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.0005);
+    if(this->selected == 1){
+      drawVertex(x, y, 0, 0, 0, 0.8);
+      moves(this->RChange, 0.2, 0.2);
     }
   }
 
@@ -376,12 +301,7 @@ public:
   king(GLfloat x1, GLfloat y1, GLfloat z1, GLfloat tam, GLfloat R1, GLfloat G1, GLfloat B1):piece(x1, y1, z1, tam, R1, G1, B1){};
   GLint selected = 0;
   void update() override{
-    glPushMatrix();
-      glColor3f(R, G, B);
-      glTranslatef(x+height/2, y+height/2, z*1.4 + 0.01);
-      glScalef(0.4, 0.4, 1.4);
-      glutSolidCube(height);
-    glPopMatrix();
+  	drawSolidCube(this->x+this->height/2, this->y+this->height/2, this->z*1.4 + 0.01, R, G, B, 0.4, 0.4, 1.4, this->height);
 
     glPushMatrix();
       glColor3f(R, G, B);
@@ -390,14 +310,10 @@ public:
       glutSolidTorus(height, height*2, 32, 32);
     glPopMatrix();
 
-    if(selected){
-      glColor3f(0, 0, 0.8);
-      glBegin(GL_QUADS);
-        glVertex3d(x, y, 0.02);
-        glVertex3d(x+1, y, 0.02);
-        glVertex3d(x+1, y+1, 0.02);
-        glVertex3d(x, y+1, 0.02);
-      glEnd();
+	this->RChange = (this->RChange > 1 ? 0.4 : this->RChange + 0.0005);
+    if(this->selected == 1){
+      drawVertex(x, y, 0, 0, 0, 0.8);
+      moves(this->RChange, 0.2, 0.2);
     }
   }
 
