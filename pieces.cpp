@@ -2,10 +2,17 @@
 #include <iostream>
 using namespace std;
 
-// 0 = NONE = VOID
-// 1X = white pieces
-// 2X = black pieces
-// X = 1 PAWN; X = 2 ROOK; X = 3 KNIGHT; X = 4 BISHOP; X = 5 QUEEN; X = 6 KING
+/*
+	0 = NONE = VOID
+	1X = white pieces
+	2X = black pieces
+	X = 1 PAWN; (o cara com uma bola na cabeça)
+	X = 2 ROOK; (quase uma torre de vigilância)
+	X = 3 KNIGHT; (tipo um cavalo)
+	X = 4 BISHOP; (o cara com a cruz na cabeça, ele é religioso)
+	X = 5 QUEEN; (a peça com um dodecahedro[?] na cabeça)
+	X = 6 KING; (o cara com a rosquinha[?] na cabeça)
+*/
 const int tab[8][8] = {
                         {0, 0, 24, 0, 0, 24, 23, 22},
                         {0, 21, 21, 21, 0, 21, 21, 0},
@@ -138,7 +145,7 @@ public:
       if(tab[yF][xF-1] != 0 && tab[yF][xF-1] > 20 && xF-1 >= 0){
         drawVertex(x-1, y-1, 0.01, R, G, B);
       }
-      if(tab[yF][xF+1] != 0 && tab[yF][xF-1] > 20 && xF-1 <= 7){
+      if(tab[yF][xF+1] != 0 && tab[yF][xF+1] > 20 && xF+1 <= 7){
         drawVertex(x+1, y-1, 0.01, R, G, B);
       }
     }

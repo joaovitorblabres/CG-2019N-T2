@@ -33,7 +33,7 @@ static void update(int value);
 static void rotation(float deltaTime);
 
 piece* pieces[8][8];
-
+int giro = 0;
 int gTimeLastUpdateMs = 0;
 
 const unsigned int FRAMES_PER_SECOND = 30;
@@ -156,10 +156,6 @@ static void resizeCB(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-int giro = 0;
-
-// when mouse button is clicked, we determine which viewing mode to
-// initialize and also remember where the mouse was clicked
 static void mouseClickCB(int button, int state, int x, int y)
 {
 	globals.mouseX = x;
